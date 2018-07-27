@@ -1,0 +1,9 @@
+{
+  "name": "bciapp",
+  "version": "0.0.0",
+  "description": "BCIApp",
+  "main": "server.js",
+  "author": {
+    "name": "Administrator"
+  }
+}

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BCIApp", "BCIApp\BCIApp.njsproj", "{EE268621-1B6E-460F-B69D-707DCFEBA13E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE268621-1B6E-460F-B69D-707DCFEBA13E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE268621-1B6E-460F-B69D-707DCFEBA13E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE268621-1B6E-460F-B69D-707DCFEBA13E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE268621-1B6E-460F-B69D-707DCFEBA13E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87923B7A-018B-4F36-8EF1-1EBC71A25B80}
+	EndGlobalSection
+EndGlobal
