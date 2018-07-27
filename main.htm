@@ -1,0 +1,879 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Vue 测试实例)</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+</head>
+<body>
+    <form>
+        <input type="checkbox" name="IsFootbridge" value="1">是否人行天桥<br>
+    </form>
+    <div id="VueBridge">
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>评估要素</td>
+                    <td>存在</td>
+                    <td>初始权重</td>
+                    <td>修正后权重</td>
+                    <td>评估要素</td>
+                    <td>存在</td>
+                    <td>初始权重权重</td>
+                    <td>修正后权重</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4">梁式桥 桁架桥 拱桥 刚构桥 悬臂+挂梁</td>
+                </tr>
+                <tr>
+                    <td>桥面铺装</td>
+                    <td><input v-model="mainExists[0]"></td>
+                    <td><input v-model="coeffs[0]"></td>
+                    <td>{{GetcalcCoeffs(0)}}</td>
+                    <td>排水系统</td>
+                    <td><input v-model="mainExists[3]"></td>
+                    <td><input v-model="coeffs[3]"></td>
+                    <td>{{GetcalcCoeffs(3)}}</td>
+                </tr>
+                <tr>
+
+                    <td>桥头平顺</td>
+                    <td><input v-model="mainExists[1]"></td>
+                    <td><input v-model="coeffs[1]"></td>
+                    <td>{{GetcalcCoeffs(1)}}</td>
+                    <td>人行道</td>
+                    <td><input v-model="mainExists[4]"></td>
+                    <td><input v-model="coeffs[4]"></td>
+                    <td>{{GetcalcCoeffs(4)}}</td>
+                </tr>
+                <tr>
+                    <td>伸缩装置</td>
+                    <td><input v-model="mainExists[2]"></td>
+                    <td><input v-model="coeffs[2]"></td>
+                    <td>{{GetcalcCoeffs(2)}}</td>
+                    <td>栏杆或护栏</td>
+                    <td><input v-model="mainExists[5]"></td>
+                    <td><input v-model="coeffs[5]"></td>
+                    <td>{{GetcalcCoeffs(5)}}</td>
+                </tr>
+            </tbody>
+        </table>
+        测试输出1：{{testOutput(coeffs[5])}}
+        测试输出2：{{calcCoeffs[0]}}
+
+        <div>桥面系</div>
+        <table class="table" width="1569" border="0" cellpadding="0" cellspacing="0" style='width:1176.75pt;border-collapse:collapse;table-layout:fixed;'>
+
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" width="72" style='height:13.50pt;width:54.00pt;'></td>
+                <td width="165" style='width:123.75pt;' x:str>桥面系</td>
+                <td width="603" style='width:452.25pt;'></td>
+                <td width="72" style='width:54.00pt;'></td>
+                <td width="72" style='width:54.00pt;'></td>
+                <td width="72" style='width:54.00pt;'></td>
+                <td width="72" style='width:54.00pt;'></td>
+                <td width="125" style='width:93.75pt;'></td>
+                <td width="100" style='width:75.00pt;'></td>
+                <td width="72" style='width:54.00pt;'></td>
+                <td class="xl65" width="72" style='width:54.00pt;'></td>
+                <td class="xl65" width="72" style='width:54.00pt;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>损坏类型</td>
+                <td x:str>定义</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>损坏评价标准</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+                <td x:str>说明</td>
+                <td x:str>病害描述</td>
+                <td x:str>扣分值</td>
+                <td class="xl65"></td>
+                <td class="xl65"></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>桥面铺装</td>
+                <td x:str>1.1.1</td>
+                <td x:str>桥面产生交错裂缝，把桥面分割成网状的碎块</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;3%</td>
+                <td x:str>3~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>网裂总面积占整个桥面面积的百分<span style='display:none;'>比</span></td>
+                <td align="right" x:num><input v-model="DP1[0]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>网裂或龟裂</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.2</td>
+                <td x:str>桥表面有规则的纵向起伏或局部拥起及沿轮迹处的路表凹陷</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;3%</td>
+                <td x:str>3~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>出现波浪及车辙的总面积占整个桥<span style='display:none;'>面面积的百分比</span></td>
+                <td align="right" x:num><input v-model="DP1[1]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>波浪及车辙</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.3 坑槽</td>
+                <td x:str>桥面材料散失后形成凹坑，但没有贯穿桥面</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;3%</td>
+                <td x:str>3~5%</td>
+                <td x:str>&gt;5%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>坑槽总面积占整个桥面面积的百分<span style='display:none;'>比</span></td>
+                <td align="right" x:num><input v-model="DP1[2]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" colspan="3" style='height:13.50pt;mso-ignore:colspan;'></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>25</td>
+                <td align="right" x:num>45</td>
+                <td align="right" x:num>65</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.4</td>
+                <td x:str>桥面出现成片裂缝，缝间路面已裂成碎块</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;3%</td>
+                <td x:str>3~5%</td>
+                <td x:str>&gt;5%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>碎裂或破碎的总面积占整个桥面面<span style='display:none;'>积的百分比</span></td>
+                <td align="right" x:num><input v-model="DP1[3]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>碎裂或破碎</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>40</td>
+                <td align="right" x:num>65</td>
+                <td align="right" x:num>80</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.5 坑洞</td>
+                <td x:str>桥面开裂或破损形成贯穿桥面的洞穴</td>
+                <td x:str>等级</td>
+                <td x:str>1个</td>
+                <td x:str>2个</td>
+                <td x:str>≧3个</td>
+                <td x:str>洞穴数量</td>
+                <td></td>
+                <td align="right" x:num><input v-model="DP1[4]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" colspan="3" style='height:13.50pt;mso-ignore:colspan;'></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>50</td>
+                <td align="right" x:num>65</td>
+                <td align="right" x:num>80</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.6 桥面</td>
+                <td x:str>与桥面道路中线大致垂直并且在横向可能贯通整个桥面的裂缝，有时伴有少量支缝</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>半贯通</td>
+                <td x:str>贯通</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>裂缝在垂直于桥面道路中线方向的<span style='display:none;'>贯通程度</span></td>
+                <td align="right" x:num><input v-model="DP1[5]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>贯通横缝</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.7 桥面</td>
+                <td x:str>与桥面道路中线大致平行并且在纵向可能贯通整个桥面的裂缝，有时伴有少量支缝</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>半贯通</td>
+                <td x:str>贯通</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>裂缝在平行于桥面道路中线方向的<span style='display:none;'>贯通程度</span></td>
+                <td align="right" x:num><input v-model="DP1[6]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>贯通纵缝</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.8人行天桥</td>
+                <td x:str>指桥面不平整的情况</td>
+                <td x:str>等级</td>
+                <td x:str>0～3%</td>
+                <td x:str>3~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>变形不平整的面积占整个桥面面积<span style='display:none;'>的百分比</span></td>
+                <td align="right" x:num><input v-model="DP1[7]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>桥面铺装变形</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.8人行天桥</td>
+                <td x:str>桥面材料长期使用出现材料磨损</td>
+                <td x:str>等级</td>
+                <td x:str>0～3%</td>
+                <td x:str>3~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>桥面材料磨损的面积占整个桥面面<span style='display:none;'>积的百分比</span></td>
+                <td align="right" x:num><input v-model="DP1[8]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>桥面铺装磨损</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>30</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.1.8人行天桥</td>
+                <td x:str>桥面抗滑能力的程度</td>
+                <td x:str>等级</td>
+                <td x:str>足够</td>
+                <td x:str>临界</td>
+                <td x:str>不足</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“足够”指桥面材料的防滑能力很<span style='display:none;'>好，具有较好的安全性；“临界”指桥面材料的防滑能力一般，存在一定的安全隐患；“不足”指桥面材料的防滑能力不足，存在严重的安全隐患</span></td>
+                <td align="right" x:num><input v-model="DP1[9]"></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>桥面铺装防滑能力</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>40</td>
+                <td x:str>*</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65"></td>
+                <td class="xl65"></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>桥头平顺、<span style='display:none;'>跳车</span></td>
+                <td x:str>1.2.1</td>
+                <td x:str>桥梁与道路连接处形成高差</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>明显</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指桥梁与道路连接平顺，目<span style='display:none;'>测不出高差；“轻微”指桥梁与道路连接有高差，高度差未超过5.2.6条限值；“明显”指桥梁与道路连接有高差，高度差超过5.2.6条限值。</span></td>
+                <td align="right" x:num>0</td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>桥头沉降</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.2.2</td>
+                <td x:str>道路路面在桥梁台背回填处出现沉降的深度</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;2cm</td>
+                <td x:str>2~5cm</td>
+                <td x:str>&gt;5cm</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>道路路面在桥梁台背回填处出现沉<span style='display:none;'>降的深度</span></td>
+                <td align="right" x:num>15</td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>台背下沉值</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td align="right" x:num>80</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>伸缩缝1</td>
+                <td x:str>1.3.1</td>
+                <td x:str>带螺栓的伸缩缝装置中原本紧固的螺帽产生松动</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>1~5个</td>
+                <td x:str>&gt;5个</td>
+                <td x:str>螺帽松动的数量</td>
+                <td></td>
+                <td align="right" x:num>0</td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>螺帽松动</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.2缝内</td>
+                <td x:str>垃圾泥土等杂物进人伸缩缝造成伸缩缝阻塞</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>少量</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指几乎没有杂物进入伸缩缝<span style='display:none;'>内;“少量”指伸缩缝内有少量的杂物;“严重”指伸缩缝内有大量的杂物并造成伸缩缝严重阻塞</span></td>
+                <td align="right" x:num>0</td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>沉积物阻塞</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td colspan="3" style='mso-ignore:colspan;'></td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.3</td>
+                <td x:str>伸缩缝橡胶条、填缝料、橡胶带等橡胶构件出现破损、老化</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指伸缩缝止水带没有破损、<span style='display:none;'>老化；“轻微”指破损长度小于该缝长度20%或少量橡胶构件出现老化、弹性性能下降；“严重”指破损长度大于该缝长度10%或橡胶构件变硬几乎失去弹性</span></td>
+                <td align="right" x:num>0</td>
+                <td class="xl65" colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>止水带破损、老化</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.4</td>
+                <td x:str>型钢、梳齿板断裂、残缺</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指伸缩缝钢材料没有破损；<span style='display:none;'>“轻微”指钢材料断裂；“严重”指钢材料残缺</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>钢材料破损</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>40</td>
+                <td align="right" x:num>65</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.5</td>
+                <td x:str>桥梁接缝处桥面边缘出现破碎损坏</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指桥梁接缝处桥面边缘没有<span style='display:none;'>破损;“轻微”指桥梁接缝处桥面边缘有10个以内小于32*32cm=0.1㎡，深度小于2cm的破损;“严重”指桥梁接缝处桥面边缘有10个以上破损或有面积大于0.1㎡，深度大于2cm的破损</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>接缝处铺装碎边</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>40</td>
+                <td align="right" x:num>65</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>伸缩缝2</td>
+                <td x:str>1.3.6</td>
+                <td x:str>伸缩装置高差;伸缩装置保护带与桥面的高差</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>明显</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指桥梁伸缩装置与桥面(路<span style='display:none;'>面)连接平顺，目测不出高差；“轻微”指桥梁伸缩装置与桥面(路面)连接处有高差，高度差末超出5.2.6条、5.2.9条限值;“明显”指桥梁伸缩装置与桥面(路面)高度差超过5.2.6条、5.2.9条限值</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>接缝处高差</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>5</td>
+                <td align="right" x:num>15</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.7钢材料翘曲变形</td>
+                <td x:str>伸缩缝内的钢材料构件产生不均匀应变而形成非正常的弯曲或扭曲变形</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指钢材料没有翘曲变形;“<span style='display:none;'>较微”指钢材料有≤1cm的翘曲变形，这种变形基本上不影响该构件原有的功能;“严重”指钢材料有&gt;1cm的翘曲变形，这种变形严重影响甚至破坏了该构件原有的功能</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" colspan="3" style='height:13.50pt;mso-ignore:colspan;'></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>40</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.8</td>
+                <td x:str>伸缩缝在设汁时预留的正常缝宽</td>
+                <td x:str>等级</td>
+                <td x:str>正常</td>
+                <td x:str>略有变化</td>
+                <td x:str>卡死</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“正常”指伸缩缝宽为设计时预留<span style='display:none;'>的正常缝宽;“略有变化”与设计时预留的正常缝宽相比有&gt;2cm的变化;“卡死”指伸缩缝宽几乎为零，伸缩缝两侧的桥梁构件紧密地接触在一起</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>结构缝宽</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>65</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.3.9</td>
+                <td x:str>伸缩缝结构在车辆经过时发出非正常声响</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>轻微</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指伸缩缝在车辆经过时没有<span style='display:none;'>异常声响；“轻微”指伸缩缝在车辆经过时发出不太明显的异常声响；“严重”指伸缩缝在车辆经过时发出明显的异常声响</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>伸缩缝处异常声响</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>30</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>排水系统</td>
+                <td x:str>1.4.1</td>
+                <td x:str>垃圾泥土等杂物进入泄水管造成泄水管阻塞</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;5%</td>
+                <td x:str>5~20%</td>
+                <td x:str>&gt;20%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>被阻塞的泄水管数占所有泄水管总<span style='display:none;'>数的百分比</span></td>
+                <td align="right" x:num>80</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>泄水管阻塞</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>40</td>
+                <td align="right" x:num>80</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.4.2</td>
+                <td x:str>排水设施残缺不全或脱落</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;5%</td>
+                <td x:str>5~20%</td>
+                <td x:str>&gt;20%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>残缺脱落的排水设施数占所有排水<span style='display:none;'>设施总数的百分比</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>残缺脱落</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>20</td>
+                <td align="right" x:num>40</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.4.3</td>
+                <td x:str>桥面雨水不能及时排走而形成积水</td>
+                <td x:str>等级</td>
+                <td x:str>无</td>
+                <td x:str>个别处</td>
+                <td x:str>多处</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“无”指桥面没有积水现象;“个<span style='display:none;'>别处”指桥面只有1处积水现象;“多处”指桥面有2处以上积水现象</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>桥面积水</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>45</td>
+                <td align="right" x:num>65</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.4.4</td>
+                <td x:str>设置于桥面铺装内的水泥或沥青混凝土的防水结构层</td>
+                <td x:str>等级</td>
+                <td x:str>完好</td>
+                <td x:str>渗水</td>
+                <td x:str>老化</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“完好”指防水层完好，从桥梁梁<span style='display:none;'>底来看没有渗水的痕迹;“渗水”指防水层有轻微的渗水，从桥梁梁底来看在个别位置有不太明显的渗水痕迹;“老化”指防水层老化，从桥梁梁底来着在多处位置有渗水的痕迹并且渗水量较大</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>防水层</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>0</td>
+                <td align="right" x:num>30</td>
+                <td align="right" x:num>65</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>栏杆或护栏</td>
+                <td x:str>1.5.1</td>
+                <td x:str>钢筋混凝土材料的栏杆或护栏表面水泥混凝土剥落露出内嵌的钢筋且钢筋产生锈蚀</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;5%</td>
+                <td x:str>5~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>产生露筋锈蚀的构件数占所有栏杆<span style='display:none;'>或护栏构件总数的百分比</span></td>
+                <td align="right" x:num>10</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>露筋锈蚀</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>20</td>
+                <td align="right" x:num>40</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.5.2</td>
+                <td x:str>原本固定在桥面的栏杆或护栏产生松动或位置错动</td>
+                <td x:str>等级</td>
+                <td x:str>轻微</td>
+                <td x:str>中等</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“轻微”指栏杆或护栏只有个别的<span style='display:none;'>构件松动或错位，只稍微影响美观但不影响安全;“中等”指栏杆或护栏有≤20%的构件松动或错位，不仅影响美观而且存在一定的安全隐患;“严重”指栏杆或护栏有20%以上的构件松动或错位，不仅严重影响美观而且存在严重的安全隐患</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>松动错位</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>30</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>不应高于Ｄ级</td>
+                <td colspan="4" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" colspan="6" style='height:13.50pt;mso-ignore:colspan;'></td>
+                <td x:str>*</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.5.3</td>
+                <td x:str>栏杆或护栏的构件损坏后丢失使得栏杆或护栏残缺不全</td>
+                <td x:str>等级</td>
+                <td x:str>轻微</td>
+                <td x:str>中等</td>
+                <td x:str>严重</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>“轻微”指栏杆或护栏只有个别的<span style='display:none;'>构件丢失或残缺，只稍微影响美观但不影响安全;“中等”指栏杆或护栏有≤20%的构件丢失或残缺，不仅影响美观而且存在一定的安全隐患;“严重”指栏杆或护栏有20%以上的构件丢失或残缺，不仅严重影响美观而且存在严重的安全隐患</span></td>
+                <td align="right" x:num>10</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>丢失残缺</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>10</td>
+                <td align="right" x:num>30</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>不应高于Ｄ级</td>
+                <td colspan="4" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" colspan="6" style='height:13.50pt;mso-ignore:colspan;'></td>
+                <td x:str>*</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;' x:str>人行道块件</td>
+                <td x:str>1.6.1</td>
+                <td x:str>人行道面产生交错裂缝，把人行道块件分割成网状的碎块</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;10%</td>
+                <td x:str>10~20%</td>
+                <td x:str>&gt;20%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>网裂总面积占整个人行道面积的百<span style='display:none;'>分比</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>网裂</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>30</td>
+                <td align="right" x:num>50</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.6.2</td>
+                <td x:str>人行道块件出现松动、脱空、下陷或拱起</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;5%</td>
+                <td x:str>5~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>塌陷总面积占整个人行道面积的百<span style='display:none;'>分比</span></td>
+                <td align="right" x:num>15</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>松动或变形</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>25</td>
+                <td align="right" x:num>40</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>1.6.3</td>
+                <td x:str>人行道块件破碎、散失</td>
+                <td x:str>等级</td>
+                <td x:str>&lt;5%</td>
+                <td x:str>5~10%</td>
+                <td x:str>&gt;10%</td>
+                <td colspan="2" style='mso-ignore:colspan;' x:str>残缺总面积占整个人行道面积的百<span style='display:none;'>分比</span></td>
+                <td align="right" x:num>0</td>
+                <td colspan="2" style='mso-ignore:colspan;'></td>
+            </tr>
+            <tr height="18" style='height:13.50pt;'>
+                <td height="18" style='height:13.50pt;'></td>
+                <td x:str>残缺</td>
+                <td></td>
+                <td x:str>扣分值</td>
+                <td align="right" x:num>15</td>
+                <td align="right" x:num>30</td>
+                <td align="right" x:num>50</td>
+                <td colspan="5" style='mso-ignore:colspan;'></td>
+            </tr>
+            
+
+        </table>
+        <p>sigmaDP1:{{sigmaDP1}}</p>
+        <p>u11:{{u1[0]}}</p>
+        <p>w11:{{w1[0]}}</p>
+        <p>MDP1:{{MDP1}}</p>
+    </div>
+    <script>
+        const oriCoeffs = [0.30, 0.15, 0.25, 0.10, 0.10, 0.10];
+        var calcCoeffs = oriCoeffs
+        var vm = new Vue({
+            el: '#VueBridge',
+            data: {
+                mainExists: [1, 1, 1, 1, 1, 1],
+                coeffs: [0.30, 0.15, 0.25, 0.10, 0.10, 0.10],
+                DP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            },
+            computed: {
+                calcCoeffs: function () {
+                    return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
+                        , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
+                },
+                sigmaDP1: function () {
+                    var sum = 0
+                    for (i = 0; i < this.DP1.length; i++)
+                        sum += this.DP1[i] * 1.0;
+                    return sum.toFixed(3)
+                },
+                u1: function () {
+                    return [this.DP1[0] / this.sigmaDP1, this.DP1[1] / this.sigmaDP1, this.DP1[2] / this.sigmaDP1
+                        , this.DP1[3] / this.sigmaDP1, this.DP1[4] / this.sigmaDP1, this.DP1[5] / this.sigmaDP1
+                        , this.DP1[6] / this.sigmaDP1, this.DP1[7] / this.sigmaDP1, this.DP1[8] / this.sigmaDP1, this.DP1[9] / this.sigmaDP1]
+                },
+                w1: function () {
+                    return [this.getWeight(this.u1[0]), this.getWeight(this.u1[1]), this.getWeight(this.u1[2])
+                        , this.getWeight(this.u1[3]), this.getWeight(this.u1[4]), this.getWeight(this.u1[5])
+                        , this.getWeight(this.u1[6]), this.getWeight(this.u1[7]), this.getWeight(this.u1[8]), this.getWeight(this.u1[9])]
+                },
+                MDP1: function () {
+                    var sum = 0
+                    for (i = 0; i < this.DP1.length; i++)
+                        sum += this.DP1[i] * this.w1[i]*1.0;
+                    return sum.toFixed(3)
+                },
+            },
+            function() {
+                return {
+                    items: [{
+                        state: false
+                    }, {
+                        state: true
+                    }]
+                };
+            },
+            methods: {
+                details: function () {
+                    return this.site + " - 学的不仅是技术，更是梦想！";
+                },
+                testOutput: function (num) {
+                    return parseFloat(num);
+                },
+                getWeight: function (u) {
+                    return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);
+                },
+                GetcalcCoeffs: function (index) {
+                    var sum = 0
+                    for (i = 0; i < this.coeffs.length; i++)
+                        sum += this.mainExists[i] * this.coeffs[i];
+                    return (this.mainExists[index] * this.coeffs[index] / sum).toFixed(3);
+                }
+
+            }
+        })
+
+    </script>
+</body>
+</html>
