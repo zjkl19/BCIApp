@@ -13,10 +13,13 @@
     <script src="https://unpkg.com/bootstrap-switch"></script>
 
     <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+
+
 </head>
 <body>
-
-    <script type="text/javascript">
+    <!-- bootstrap switch 必须引入的文件 -->
+    <script src="BCISwitch.js"></script>
+    <!--<script>
         $(function () {
             /* 初始化控件 */
             $("#switch-state").bootstrapSwitch({
@@ -55,7 +58,7 @@
             });
 
         });
-    </script>
+    </script>-->
     <div id="VueBridge">
         <div class="row">
             <div class="col-md-1">
@@ -121,14 +124,16 @@
                                 <input type="text" value="4" v-model="beamHorizontalTiesWeight" />
                             </td>
                             <td>
-                                <button>横向联系</button>
-                                <button>钢结构物</button>
+                                横向联系
+                                <input id="beam_horizontal_ties_switch-state" type="checkbox" checked="checked">、
+                                钢结构物
+                                <input id="beam_horizontal_ties_steel_struct_switch-state" type="checkbox" checked="checked">
                             </td>
 
                         </tr>
+                    </tbody>
 
-
-
+                    <tbody>
                         <!-- 悬臂+挂梁 -->
                         <tr>
                             <td rowspan="4">悬臂+挂梁</td>
@@ -179,8 +184,10 @@
                             </td>
 
                         </tr>
-                        <!-- 桁架桥 -->
+                    </tbody>
 
+                    <!-- 桁架桥 -->
+                    <tbody>
                         <tr>
                             <td rowspan="5">桁架桥</td>
                             <td>
@@ -406,6 +413,27 @@
                             <td><input v-model="beamDP1[17]" /></td>
                         </tr>
                     </tbody>
+                    <!-- 梁,横向联系 -->
+                    <tbody>
+                        <tr>
+                            <td rowspan="10">
+                                钢结构物
+                            </td>
+                            <td>变色起皮</td>
+                            <td>钢结构物表面油漆变色或漆皮隆起</td>
+                            <td></td>
+                            <td>变色起皮的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input type="text" v-model="beamDP1[8]" /></td>
+                        </tr>
+                        <tr>
+
+                            <td>油漆剥落</td>
+                            <td>钢结构物表面油漆剥落</td>
+                            <td></td>
+                            <td>剥落的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input type="text" v-model="beamDP1[9]" /></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
 
@@ -414,7 +442,11 @@
 
 
     </div>
-    <script>
+    <!-- 重构后代码 -->
+    <script src="BCICore.js"></script>
+
+    <!-- 重构前代码 -->
+    <!--<script>
         const oriCoeffs = [0.30, 0.15, 0.25, 0.10, 0.10, 0.10];
         var calcCoeffs = oriCoeffs
         var vm = new Vue({
@@ -580,6 +612,6 @@
             }
         })
 
-    </script>
+    </script>-->
 </body>
 </html>
