@@ -28,10 +28,10 @@ $(function () {
         // 当开关状态改变时触发
         onSwitchChange: function (event, state) {
             if (state == true) {
-                $("#steelStruct").show();
+                $("#beamGirderSteel").show();
                 //alert("ON");
             } else {
-                $("#steelStruct").hide();
+                $("#beamGirderSteel").hide();
                 //alert("OFF");
             }
         }

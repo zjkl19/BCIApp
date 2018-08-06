@@ -446,10 +446,10 @@
                     </thead>
 
                     <!-- PC或RC梁式构件 -->
-                    <tbody is="t-component1" :vlu="beamDP1"></tbody>
-
-                    <tbody id="steelStruct">
-                        <!-- 钢结构物 -->
+                    <tbody is="PC-RC-component" :vlu="beamGirderPCRCDP" :id="BeamBridgeId[0]"></tbody>
+                    
+                    <!-- 钢结构物 -->
+                    <!--<tbody id="steelStruct">
                         <tr>
                             <td rowspan="10">
                                 钢结构物
@@ -524,7 +524,10 @@
                             <td>“轻微”指弯曲翘曲不明显；“明显”指出现变形但不影响结构功能；“严重”指出现严重变形且影响结构功能</td>
                             <td><input v-model="beamDP1[17]" /></td>
                         </tr>
-                    </tbody>
+                    </tbody>-->
+                    
+                    <tbody is="steel-component" :vlu="beamGirderSteelDP" :id="BeamBridgeId[1]"></tbody>
+                    
                     <!-- 梁,横向联系 -->
                     <tbody>
                         <tr>

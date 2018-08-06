@@ -9,10 +9,10 @@ tbl</br>
 </div>`
 });
 
-Vue.component('t-component1', {
+Vue.component('PC-RC-component', {
     props: ['vlu'],
     template: `
-                    <tbody id="PC_RC_Beam">
+                    <tbody>
                         <tr>
                             <td rowspan="8">
                                 PC或RC梁式构件
@@ -75,11 +75,87 @@ Vue.component('t-component1', {
                             <td><input type="text" v-model="vlu[7]" /></td>
                         </tr>
                     </tbody>`,
-    methods: {
-        updateValue: function (event) {
-            this.$emit('input', event.target.value);
-        }
-    }
+});
+
+Vue.component('steel-component', {
+    props: ['vlu'],
+    template: `
+                    <tbody>
+                        <tr>
+                            <td rowspan="10">
+                                钢结构物
+                            </td>
+                            <td>变色起皮</td>
+                            <td>钢结构物表面油漆变色或漆皮隆起</td>
+                            <td></td>
+                            <td>变色起皮的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input type="text" v-model="vlu[0]" /></td>
+                        </tr>
+                        <tr>
+
+                            <td>油漆剥落</td>
+                            <td>钢结构物表面油漆剥落</td>
+                            <td></td>
+                            <td>剥落的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input type="text" v-model="vlu[1]" /></td>
+                        </tr>
+                        <tr>
+                            <td>一般锈蚀</td>
+                            <td>钢结构物表面出现锈斑</td>
+                            <td></td>
+                            <td>一般锈蚀的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input type="text" v-model="vlu[2]" /></td>
+                        </tr>
+                        <tr>
+                            <td>严重锈蚀</td>
+                            <td>钢结构出现易剥落的锈层或厚度明显变薄</td>
+                            <td></td>
+                            <td>严重锈蚀的总面积占整个钢结构物表面积的百分比</td>
+                            <td><input v-model="vlu[3]" /></td>
+                        </tr>
+                        <tr>
+                            <td>锈蚀成洞</td>
+                            <td>钢结构物生锈并被洞穿</td>
+                            <td></td>
+                            <td>“无”指钢结构物没有出现锈蚀成洞；“局部”指钢结构物局部出现锈蚀成洞；“大量”指钢结构物出现大量的锈蚀成洞</td>
+                            <td><input v-model="vlu[4]" /></td>
+                        </tr>
+                        <tr>
+                            <td>焊缝裂纹</td>
+                            <td>钢结构物上的焊缝出现裂纹</td>
+                            <td></td>
+                            <td>“无”指焊缝没有裂纹；“少量”指焊缝《10%裂缝；“严重”指>10%焊缝出现裂纹</td>
+                            <td><input v-model="vlu[5]" /></td>
+                        </tr>
+                        <tr>
+                            <td>焊缝开裂</td>
+                            <td>钢结构物上的焊缝开裂</td>
+                            <td></td>
+                            <td>“无”指焊缝没有出现开裂；“少量”指焊缝&lt;10%开裂；“严重”指>10%焊缝出现开裂</td>
+                            <td><input v-model="vlu[6]" /></td>
+                        </tr>
+                        <tr>
+                            <td>铆钉损失</td>
+                            <td>钢结构物上的铆钉损失或丢失</td>
+                            <td></td>
+                            <td>损失的铆钉数站所有铆钉总数的比例</td>
+                            <td><input v-model="vlu[7]" /></td>
+                        </tr>
+                        <tr>
+                            <td>螺栓松动</td>
+                            <td>钢结构物上的螺栓出现松动</td>
+                            <td></td>
+                            <td>“无”指没有螺栓出现松动；“少量”指&lt;20%螺栓出现松动；“大量”指>20%螺栓出现松动</td>
+                            <td><input v-model="vlu[8]" /></td>
+                        </tr>
+                        <tr>
+                            <td>错位变形</td>
+                            <td>钢梁、钢盖梁、钢墩台身因非正常变形，出现的扭曲、错位</td>
+                            <td></td>
+                            <td>“轻微”指弯曲翘曲不明显；“明显”指出现变形但不影响结构功能；“严重”指出现严重变形且影响结构功能</td>
+                            <td><input v-model="vlu[9]" /></td>
+                        </tr>
+                    </tbody>`,
 });
 
 var vm = new Vue({
@@ -97,15 +173,26 @@ var vm = new Vue({
 
         vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+        BeamBridgeId:['PC_RC_Beam','beamGirderSteel'],
+
         //下标 0-17
-        beamDP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           //主梁,PC或RC梁式构件
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
+        //beamDP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           //主梁,PC或RC梁式构件
+        //    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
+
+        beamGirderPCRCDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,PC或RC梁式构件
+        beamGirderSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物]
 
         beamDP3: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
         beamDP4: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
 
     },
     computed: {
+        beamDP1: function () {
+            return this.beamGirderPCRCDP.concat(this.beamGirderSteelDP);
+        },
+
+
         calcCoeffs: function () {
             return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
                 , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
