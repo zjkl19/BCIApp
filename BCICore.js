@@ -65,7 +65,7 @@ Vue.component('PC-RC-component', {
                             <td>与桥面道路中线大致垂直并且在横向可能贯通整个桥面的裂缝，有时伴有少量支缝</td>
                             <td></td>
                             <td>裂缝在垂直于桥面道路中线方向的贯通程度</td>
-                            <td><input type="text" v-model="vlu[61]"/></td>
+                            <td><input type="text" v-model="vlu[6]"/></td>
                         </tr>
                         <tr>
                             <td>梁体位移</td>
@@ -158,6 +158,56 @@ Vue.component('steel-component', {
                     </tbody>`,
 });
 
+Vue.component('horizontal-ties-component', {
+    props: ['vlu'],
+    template: `
+                   <tbody>
+                        <tr>
+                            <td rowspan="6">横向联系</td>
+                            <td>贯通纵缝</td>
+                            <td>与桥面道路中线大致平行并且在纵向可能贯通整个桥面的裂缝，有时伴有少量支缝</td>
+                            <td></td>
+                            <td>裂缝在平行于桥面道路中线方向的贯通程度</td>
+                            <td><input v-model="vlu[0]" /></td>
+                        </tr>
+                        <tr>
+                            <td>连接件脱焊松动</td>
+                            <td>连接件从焊接处脱落而产生松动</td>
+                            <td></td>
+                            <td>产生脱焊松动的连接件数占所有连接件总数的百分比</td>
+                            <td><input  v-model="vlu[1]" /></td>
+                        </tr>
+                        <tr>
+                            <td>连接件断裂</td>
+                            <td>连接件出现断裂</td>
+                            <td></td>
+                            <td>产生断裂的连接件数占所有连接件总数的百分比</td>
+                            <td><input  v-model="vlu[2]" /></td>
+                        </tr>
+                        <tr>
+                            <td>横隔板网裂</td>
+                            <td>横隔板表面出现网状裂缝</td>
+                            <td></td>
+                            <td>横隔板网裂总面积占整个横隔板表面积的百分比</td>
+                            <td><input  v-model="vlu[3]" /></td>
+                        </tr>
+                        <tr>
+                            <td>横隔板剥落露筋</td>
+                            <td>横隔板表面混凝土剥落露出内嵌的钢筋</td>
+                            <td></td>
+                            <td>横隔板剥落露筋总面积占整个横隔板表面积的百分比</td>
+                            <td><input  v-model="vlu[4]"/></td>
+                        </tr>
+                        <tr>
+                            <td>梁体异常振动</td>
+                            <td>梁体出现非正常的振动</td>
+                            <td></td>
+                            <td>“无”指梁体没有异常振动;“轻微”指梁体有轻微的异常振动，这种振动不易被感知;“严重”指梁体出现明显的异常振动</td>
+                            <td><input  v-model="vlu[5]"/></td>
+                        </tr>
+                    </tbody>`,
+});
+
 var vm = new Vue({
     el: '#VueBridge',
     data: {
@@ -174,22 +224,24 @@ var vm = new Vue({
         vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-        BeamBridgeId:['PC_RC_Beam','beamGirderSteel'],
+        BeamBridgeId: ['beamGirderPC_RC', 'beamGirderSteel', 'beamHTiesHTies', 'beamHTiesSteel'],
 
         //下标 0-17
         //beamDP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           //主梁,PC或RC梁式构件
         //    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
 
         beamGirderPCRCDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,PC或RC梁式构件
-        beamGirderSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物]
-
-        beamDP3: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
-        beamDP4: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
+        beamGirderSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
+        beamHTiesHTiesDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
+        beamHTiesSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
 
     },
     computed: {
         beamDP1: function () {
             return this.beamGirderPCRCDP.concat(this.beamGirderSteelDP);
+        },
+        beamDP2: function () {
+            return this.beamHTiesHTiesDP.concat(this.beamHTiesSteelDP);
         },
 
 
