@@ -208,6 +208,99 @@ Vue.component('horizontal-ties-component', {
                     </tbody>`,
 });
 
+Vue.component('support-component', {
+    props: ['vlu'],
+    template: `
+                    <tbody>
+                        <tr>
+                            <td rowspan="6">
+                                支座
+                            </td>
+                            <td>支座固定螺栓损坏</td>
+                            <td>用于固定支座的螺栓损坏、松动</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input v-model="vlu[0]" /></td>
+                        </tr>
+                        <tr>
+
+                            <td>橡胶支座变形</td>
+                            <td>橡胶材料类支座变形、开裂</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input v-model="vlu[1]" /></td>
+                        </tr>
+                        <tr>
+
+                            <td>钢支座损坏</td>
+                            <td>钢支座类支座松动、锈蚀</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[2]" /></td>
+                        </tr>
+                        <tr>
+                            <td>支座底板混凝土破损</td>
+                            <td>支座底部的水泥混凝土板</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[3]" /></td>
+                        </tr>
+                        <tr>
+                            <td>支承稳定性异常</td>
+                            <td>支座的支承稳定性</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[4]" /></td>
+                        </tr>
+                        <tr>
+                            <td>钢垫板锈蚀</td>
+                            <td>支座上、下垫板锈蚀</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[5]" /></td>
+                        </tr>
+                    </tbody>`,
+});
+
+
+Vue.component('fallprevent-component', {
+    props: ['vlu'],
+    template: `<tbody>
+                        <tr>
+                            <td rowspan="4">
+                                防落梁装置
+                            </td>
+                            <td>有无落架趋势</td>
+                            <td>由于防落梁装置的作用而使桥梁结构有或无落架的趋势</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input v-model="vlu[0]" /></td>
+                        </tr>
+                        <tr>
+                            <td>牛腿表面损伤</td>
+                            <td>防落梁装置的牛腿表面被损坏</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input v-model="vlu[1]" /></td>
+                        </tr>
+                        <tr>
+
+                            <td>伸缩缝处渗水</td>
+                            <td>防落梁伸缩缝处有渗水的痕迹</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[2]" /></td>
+                        </tr>
+                        <tr>
+                            <td>钢锚板锈蚀</td>
+                            <td>防落梁装置上起锚固作用的钢板</td>
+                            <td></td>
+                            <td>/</td>
+                            <td><input type="text" v-model="vlu[3]" /></td>
+                        </tr>
+                    </tbody>`,
+});
+
 var vm = new Vue({
     el: '#VueBridge',
     data: {
@@ -218,13 +311,22 @@ var vm = new Vue({
         DP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
         beamComponent: [],
-        beamGirderWeight: 6,
-        beamHorizontalTiesWeight: 4,
+        beamGirderWeight:6,
+        beamHorizontalTiesWeight:4,
+
+        cantileverSuspendedComponent: [],
+        cantileverSuspendedWeight:[6,2,1,1],    //初始值:悬臂梁6,挂梁2,挂梁支座1,防落梁1
+
+        cantileverSuspendedComponent01: [],
 
         vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
         BeamBridgeId: ['beamGirderPC_RC', 'beamGirderSteel', 'beamHTiesHTies', 'beamHTiesSteel'],
+        cantileverSuspendedBridgeId:
+            ['cantileverSuspendedCantileverPCRC', 'cantileverSuspendedSuspendedPCRC'
+                , 'cantileverSuspendedSuspendedSteel', 'cantileverSuspendedSuspendedSupportSupport'
+                ,'cantileverSuspendedFallpreventFallprevent'],
 
         //下标 0-17
         //beamDP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           //主梁,PC或RC梁式构件
@@ -235,6 +337,16 @@ var vm = new Vue({
         beamHTiesHTiesDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
         beamHTiesSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
 
+        cantileverSuspendedCantileverPCRCDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedPCRCDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedSteelDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedSupportDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedFallpreventFallpreventDP:
+            [0.0, 0.0, 0.0, 0.0,0.0,0.0],
     },
     computed: {
         beamDP1: function () {
@@ -277,51 +389,58 @@ var vm = new Vue({
             else
                 return false;
         },
+
         isShow: function () {
             if (this.bridgeSelected == "beam")
                 return true
             else
                 return false
         },
-        //损坏扣分值的总和
-        beamSigmaDP1: function () {
-            var sum = 0
-            for (i = 0; i < this.beamDP1.length; i++)
-                sum += this.beamDP1[i] * 1.0;
-            return sum.toFixed(3)
+        cantileverSuspendedIsShow: function () {
+            if (this.bridgeSelected == "cantileverSuspended")
+                return true
+            else
+                return false
         },
+        trussIsShow: function () {
+            if (this.bridgeSelected == "truss")
+                return true
+            else
+                return false
+        },
+        rigidIsShow: function () {
+            if (this.bridgeSelected == "rigid")
+                return true
+            else
+                return false
+        },
+
+        beamSigmaDP: function () {
+            return [this.getSigmaDP(this.beamDP1), this.getSigmaDP(this.beamDP2)]
+        },
+
         //第[i]项(i>=0)表示第i+1项损坏的扣分值占所有损坏扣分值的比例
         beam_u1: function () {
-
-            var arr1 = this.beamDP1
-            var arr2 = this.beamSigmaDP1
-
-            var result = arr1.map(function (item) {
-                return item / arr2;
-            });
-
-            return result
+            return this.get_u(this.beamDP1, this.beamSigmaDP[0])
         },
+        beam_u2: function () {
+            return this.get_u(this.beamDP2, this.beamSigmaDP[1])
+        },
+
         //第[i]项(i>=0)表示第i+1项类构件的权重
         beam_w1: function () {
-
-            var arr1 = this.beam_u1
-
-            var result = arr1.map(function (u) {
-                return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);    //日后重构
-            });
-
-            return result
+            return this.get_w(this.beam_u1)
+        },
+        beam_w2: function () {
+            return this.get_w(this.beam_u2)
         },
 
         //构件综合扣分值,详见规范P18,4.5.4-4
-        SDP1: function () {
-            var SDP = 0
-            for (i = 0; i < this.beamDP1.length; i++)
-                SDP += this.beamDP1[i] * this.beam_w1[i] * 1.0;
-            if (SDP < Math.max(...this.beamDP1))
-                SDP = Math.max(...this.beamDP1)
-            return SDP.toFixed(3)
+        beam_SDP1: function () {
+            return this.getSDP(this.beamDP1, this.beam_w1)
+        },
+        beam_SDP2: function () {
+            return this.getSDP(this.beamDP2, this.beam_w2)
         },
 
         //计算梁桥各个构件的权重
@@ -347,6 +466,37 @@ var vm = new Vue({
             return result
         },
 
+        //计算"悬臂+挂梁"各个构件的权重
+        cantileverSuspendedComponentWeights: function () {
+            var result = [0.0, 0.0 ,0.0 ,0.0]
+            var Sum = 0.0
+            var ComponentMatch = ['cantileverSuspendedCantilever', 'cantileverSuspendedSuspended'
+                , 'cantileverSuspendedSupport', 'cantileverSuspendedFallprevent']
+
+            for (i = 0; i < ComponentMatch.length; i++) {
+                if ($.inArray(ComponentMatch[i], this.cantileverSuspendedComponent) >= 0) {
+                    Sum += this.cantileverSuspendedWeight[i]
+                }
+            }         
+            var arr1 = this.cantileverSuspendedWeight
+            var result = arr1.map(function (item) {
+                return item / Sum;
+            });
+
+            return result
+        },
+
+        isShowTest: function () {
+            if ($.inArray('cantileverSuspendedCantileverPCRC', this.cantileverSuspendedComponent01) >= 0)
+                return true;
+            else
+                return false;
+        },
+        //单跨BCIs
+        BCIs: function () {
+            return this.beamComponentWeights[0] * (100 - (this.beamComponentWeights[0] ? this.beam_SDP1 : 0)) + this.beamComponentWeights[1] * (100 - (this.beamComponentWeights[1] ? this.beam_SDP2 : 0))
+        }
+
     },
     function() {
         return {
@@ -358,9 +508,36 @@ var vm = new Vue({
         };
     },
     methods: {
-        details: function () {
-            return this.site + " - 学的不仅是技术，更是梦想！";
+        getSigmaDP: function (DPArray) {
+            var sum = 0
+            for (i = 0; i < DPArray.length; i++)
+                sum += DPArray[i] * 1.0;
+            return sum.toFixed(3)
         },
+
+        get_u: function (DPArray, SigmaDP) {
+            var arr1 = DPArray
+            var arr2 = SigmaDP
+            var result = arr1.map(function (item) {
+                return item / arr2;
+            });
+            return result
+        },
+        get_w: function (uArray) {
+            var result = uArray.map(function (u) {
+                return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);    //日后重构
+            });
+            return result
+        },
+        getSDP: function (DPArray,wArray) {
+            var SDP = 0
+            for (i = 0; i < DPArray.length; i++)
+                SDP += DPArray[i] * wArray[i] * 1.0;
+            if (SDP < Math.max(...DPArray))
+                SDP = Math.max(...DPArray)
+            return SDP.toFixed(3)
+        },
+
         testOutput: function (num) {
             return parseFloat(num);
         },
