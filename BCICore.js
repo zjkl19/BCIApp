@@ -1,14 +1,391 @@
 ﻿const oriCoeffs = [0.30, 0.15, 0.25, 0.10, 0.10, 0.10];
 var calcCoeffs = oriCoeffs
 
+
+
+var vm = new Vue({
+    el: '#VueBridge',
+    data: {
+        bridgeSelected: '',
+
+        mainExists: [1, 1, 1, 1, 1, 1],
+        coeffs: [0.30, 0.15, 0.25, 0.10, 0.10, 0.10],
+        DP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+
+
+        cantileverSuspendedComponent: [],
+        cantileverSuspendedWeight:[6,2,1,1],    //初始值:悬臂梁6,挂梁2,挂梁支座1,防落梁1
+
+        cantileverSuspendedComponent01: [],
+
+        vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+        cantileverSuspendedBridgeId:
+            ['cantileverSuspendedCantileverPCRC', 'cantileverSuspendedSuspendedPCRC'
+                , 'cantileverSuspendedSuspendedSteel', 'cantileverSuspendedSuspendedSupportSupport'
+                ,'cantileverSuspendedFallpreventFallprevent'],
+
+        beamComponent: [],//最大数组：["beam01","beam02"]
+        beamComponentMatch: ["beam01", "beam02"],
+        beamWeight:[6,4],
+        //下标 0-17
+        beamId: ['beam11', 'beam12', 'beam21', 'beam22'],
+        beamDP11: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,PC或RC梁式构件
+        beamDP12: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
+        beamDP21: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
+        beamDP22: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
+
+
+
+        //计算"悬臂+挂梁"各个构件的权重
+        cantileverSuspendedComponentWeights: function () {
+            var result = [0.0, 0.0, 0.0, 0.0]
+            var Sum = 0.0
+            var ComponentMatch = ['cantileverSuspendedCantilever', 'cantileverSuspendedSuspended'
+                , 'cantileverSuspendedSupport', 'cantileverSuspendedFallprevent']
+
+            for (i = 0; i < ComponentMatch.length; i++) {
+                if ($.inArray(ComponentMatch[i], this.cantileverSuspendedComponent) >= 0) {
+                    Sum += this.cantileverSuspendedWeight[i]
+                }
+            }
+            var arr1 = this.cantileverSuspendedWeight
+            var result = arr1.map(function (item) {
+                return item / Sum;
+            });
+
+            return result
+        },
+
+        //开关控制是否显示
+        //参数：
+        //MatchId:匹配Id
+        //MatchArray:匹配数组
+        switchShow: function (MatchId, MatchArray) {
+            if ($.inArray(MatchId, MatchArray) >= 0)
+                return true;
+            else
+                return false;
+        },
+
+        cantileverSuspendedCantileverPCRCDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedPCRCDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedSteelDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedSuspendedSupportDP:
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        cantileverSuspendedFallpreventFallpreventDP:
+            [0.0, 0.0, 0.0, 0.0,0.0,0.0],
+    },
+    computed: {
+        //beamDP1: function () {
+        //    return this.beamGirderPCRCDP.concat(this.beamGirderSteelDP);
+        //},
+        //beamDP2: function () {
+        //    return this.beamHTiesHTiesDP.concat(this.beamHTiesSteelDP);
+        //},
+        //计算梁桥各个构件的权重
+        //ComponentMatch:匹配数组
+        beamComponentWeights: function () {
+            return this.getComponentWeights(this.beamComponentMatch, this.beamComponent, this.beamWeight)
+        },
+
+        calcCoeffs: function () {
+            return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
+                , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
+        },
+        sigmaDP1: function () {
+            var sum = 0
+            for (i = 0; i < this.DP1.length; i++)
+                sum += this.DP1[i] * 1.0;
+            return sum.toFixed(3)
+        },
+        u1: function () {
+            return [this.DP1[0] / this.sigmaDP1, this.DP1[1] / this.sigmaDP1, this.DP1[2] / this.sigmaDP1
+                , this.DP1[3] / this.sigmaDP1, this.DP1[4] / this.sigmaDP1, this.DP1[5] / this.sigmaDP1
+                , this.DP1[6] / this.sigmaDP1, this.DP1[7] / this.sigmaDP1, this.DP1[8] / this.sigmaDP1, this.DP1[9] / this.sigmaDP1]
+        },
+        w1: function () {
+            return [this.getWeight(this.u1[0]), this.getWeight(this.u1[1]), this.getWeight(this.u1[2])
+                , this.getWeight(this.u1[3]), this.getWeight(this.u1[4]), this.getWeight(this.u1[5])
+                , this.getWeight(this.u1[6]), this.getWeight(this.u1[7]), this.getWeight(this.u1[8]), this.getWeight(this.u1[9])]
+        },
+        MDP1: function () {
+            var sum = 0
+            for (i = 0; i < this.DP1.length; i++)
+                sum += this.DP1[i] * this.w1[i] * 1.0;
+            return sum.toFixed(3)
+        },
+        showState: function (v) {
+            if (v == "beam")
+                return true;
+            else
+                return false;
+        },
+
+        isShow: function () {
+            if (this.bridgeSelected == "beam")
+                return true
+            else
+                return false
+        },
+        cantileverSuspendedIsShow: function () {
+            if (this.bridgeSelected == "cantileverSuspended")
+                return true
+            else
+                return false
+        },
+        trussIsShow: function () {
+            if (this.bridgeSelected == "truss")
+                return true
+            else
+                return false
+        },
+        rigidIsShow: function () {
+            if (this.bridgeSelected == "rigid")
+                return true
+            else
+                return false
+        },
+
+        beamSigmaDP: function () {
+            return [this.getSigmaDP(this.beamDP1), this.getSigmaDP(this.beamDP2)]
+        },
+
+        //第[i]项(i>=0)表示第i+1项损坏的扣分值占所有损坏扣分值的比例
+        //beam_u1: function () {
+        //    return this.get_u(this.beamDP1, this.beamSigmaDP[0])
+        //},
+        //beam_u2: function () {
+        //    return this.get_u(this.beamDP2, this.beamSigmaDP[1])
+        //},
+
+        ////第[i]项(i>=0)表示第i+1项类构件的权重
+        //beam_w1: function () {
+        //    return this.get_w(this.beam_u1)
+        //},
+        //beam_w2: function () {
+        //    return this.get_w(this.beam_u2)
+        //},
+
+        ////构件综合扣分值,详见规范P18,4.5.4-4
+        //beam_SDP1: function () {
+        //    return this.getSDP(this.beamDP1, this.beam_w1)
+        //},
+        //beam_SDP2: function () {
+        //    return this.getSDP(this.beamDP2, this.beam_w2)
+        //},
+
+        
+
+        isShowTest: function () {
+            if ($.inArray('cantileverSuspendedCantileverPCRC', this.cantileverSuspendedComponent01) >= 0)
+                return true;
+            else
+                return false;
+        },
+        //单跨BCIs
+
+        BCIs: function () {
+            return this.beamComponentWeights[0] * (100 - (this.beamComponentWeights[0] ? this.beam_SDP1 : 0)) + this.beamComponentWeights[1] * (100 - (this.beamComponentWeights[1] ? this.beam_SDP2 : 0))
+        }
+
+    },
+    function() {
+        return {
+            items: [{
+                state: false
+            }, {
+                state: true
+            }]
+        };
+    },
+    methods: {
+        getSigmaDP: function (DPArray) {
+            var sum = 0
+            for (i = 0; i < DPArray.length; i++)
+                sum += DPArray[i] * 1.0;
+            return sum.toFixed(3)
+        },
+
+        get_u: function (DPArray, SigmaDP) {
+            var arr1 = DPArray
+            var arr2 = SigmaDP
+            var result = arr1.map(function (item) {
+                return item / arr2;
+            });
+            return result
+        },
+        get_w: function (uArray) {
+            var result = uArray.map(function (u) {
+                return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);    //日后重构
+            });
+            return result
+        },
+        getSDP: function (DPArray,wArray) {
+            var SDP = 0
+            for (i = 0; i < DPArray.length; i++)
+                SDP += DPArray[i] * wArray[i] * 1.0;
+            if (SDP < Math.max(...DPArray))
+                SDP = Math.max(...DPArray)
+            return SDP.toFixed(3)
+        },
+
+        testOutput: function (num) {
+            return parseFloat(num);
+        },
+        getWeight: function (u) {
+            return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);
+        },
+        GetcalcCoeffs: function (index) {
+            var sum = 0
+            for (i = 0; i < this.coeffs.length; i++)
+                sum += this.mainExists[i] * this.coeffs[i];
+            return (this.mainExists[index] * this.coeffs[index] / sum).toFixed(3);
+        },
+        toggle: function () {
+            this.isShow = !this.isShow;
+        },
+        setShowState: function (v) {
+``
+            if (v == "beam")
+                return true
+            else
+                return false
+        },
+
+        //计算各个构件的权重
+        //componentMatch:匹配组件数组
+        //componentSelected:已选组件
+        //componentWeight:各组件权重
+        /**
+         * 
+         * @param componentMatch 匹配组件数组
+         * @param componentSelected 已选组件
+         * */
+        getComponentWeights: function (componentMatch, componentSelected, componentWeight) {
+            //初始化结果
+            var result = []  //最终求得的权重
+            for (i = 0; i < componentMatch.length; i++) {    //初始化权重
+                result.push(0)
+            }
+
+            var Sum = 0.0
+            var newWeight = componentWeight.slice()
+            //求已选组件的权重和
+            for (i = 0; i < componentMatch.length; i++) {
+                if ($.inArray(componentMatch[i], componentSelected) >= 0) {
+                    Sum += componentWeight[i]
+                }
+                else {
+                    newWeight[i]=0.0
+                }
+            }
+            
+            //重新计算权重
+            var result = newWeight.map(function (item) {
+                return (item / Sum)*1.000
+            });
+
+            return result
+
+        },
+
+        //计算"悬臂+挂梁"各个构件的权重
+        cantileverSuspendedComponentWeights: function () {
+            var result = [0.0, 0.0, 0.0, 0.0]
+            var Sum = 0.0
+            var ComponentMatch = ['cantileverSuspendedCantilever', 'cantileverSuspendedSuspended'
+                , 'cantileverSuspendedSupport', 'cantileverSuspendedFallprevent']
+
+            for (i = 0; i < ComponentMatch.length; i++) {
+                if ($.inArray(ComponentMatch[i], this.cantileverSuspendedComponent) >= 0) {
+                    Sum += this.cantileverSuspendedWeight[i]
+                }
+            }
+            var arr1 = this.cantileverSuspendedWeight
+            var result = arr1.map(function (item) {
+                return item / Sum;
+            });
+
+            return result
+        },
+
+    }
+})
+
+
+Vue.component('t1-component', {
+    props: ['vlu'],
+    template: `<div>
+    {{vlu}}
+    <t-component :vlu="vlu"></t-component>
+    </div>`
+});
 Vue.component('t-component', {
+    props: ['vlu'],
     template: `
 <div>
 lbt</br>
-tbl</br>
+{{vlu}}</br>
 </div>`
 });
 
+Vue.component('t2-component', {
+    template: `
+<table>
+    <tbody>tt</tbody>
+    <tbody>tt1</tbody>
+</table>    
+`
+});
+
+Vue.component('bridge-classif-component', {
+    props: ['classf'],
+    template: `
+<table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td>构件类型</td>
+                            <td>损坏类型</td>
+                            <td>定义</td>
+                            <td>损坏评价标准</td>
+                            <td>说明</td>
+                            <td>扣分值</td>
+                        </tr>
+                    </thead>
+<tbody is="PC-RC-component1" vlu="ceshi" ></tbody>
+</table>
+`
+});
+Vue.component('PC-RC-component1', {
+    props: ['vlu'],
+    template: `
+                    <tbody>
+                        <tr>
+                            <td>
+                                PC或RC梁式构件
+                            </td>
+                            <td>表面裂缝{{vlu}}</td>
+                            <td>梁表面出现细微不规则裂缝</td>
+                            <td></td>
+                            <td>网状裂缝的总面积占整个梁底表面积的百分比</td>
+                            <td><input /></td>
+                        </tr>
+                   
+                    </tbody>`,
+});
+var arr = [
+    { comp: "主梁", evalItem: ["pc", "steel"] },
+    { comp: "横向联系", evalItem: ["pc1", "steel1"] }
+];
+
+//PC或RC梁式构件
+//8项
 Vue.component('PC-RC-component', {
     props: ['vlu'],
     template: `
@@ -262,7 +639,6 @@ Vue.component('support-component', {
                     </tbody>`,
 });
 
-
 Vue.component('fallprevent-component', {
     props: ['vlu'],
     template: `<tbody>
@@ -300,265 +676,3 @@ Vue.component('fallprevent-component', {
                         </tr>
                     </tbody>`,
 });
-
-var vm = new Vue({
-    el: '#VueBridge',
-    data: {
-        bridgeSelected: '',
-
-        mainExists: [1, 1, 1, 1, 1, 1],
-        coeffs: [0.30, 0.15, 0.25, 0.10, 0.10, 0.10],
-        DP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-
-        beamComponent: [],
-        beamGirderWeight:6,
-        beamHorizontalTiesWeight:4,
-
-        cantileverSuspendedComponent: [],
-        cantileverSuspendedWeight:[6,2,1,1],    //初始值:悬臂梁6,挂梁2,挂梁支座1,防落梁1
-
-        cantileverSuspendedComponent01: [],
-
-        vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-
-        BeamBridgeId: ['beamGirderPC_RC', 'beamGirderSteel', 'beamHTiesHTies', 'beamHTiesSteel'],
-        cantileverSuspendedBridgeId:
-            ['cantileverSuspendedCantileverPCRC', 'cantileverSuspendedSuspendedPCRC'
-                , 'cantileverSuspendedSuspendedSteel', 'cantileverSuspendedSuspendedSupportSupport'
-                ,'cantileverSuspendedFallpreventFallprevent'],
-
-        //下标 0-17
-        //beamDP1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           //主梁,PC或RC梁式构件
-        //    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
-
-        beamGirderPCRCDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,PC或RC梁式构件
-        beamGirderSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
-        beamHTiesHTiesDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
-        beamHTiesSteelDP: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
-
-        cantileverSuspendedCantileverPCRCDP:
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        cantileverSuspendedSuspendedPCRCDP:
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        cantileverSuspendedSuspendedSteelDP:
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        cantileverSuspendedSuspendedSupportDP:
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        cantileverSuspendedFallpreventFallpreventDP:
-            [0.0, 0.0, 0.0, 0.0,0.0,0.0],
-    },
-    computed: {
-        beamDP1: function () {
-            return this.beamGirderPCRCDP.concat(this.beamGirderSteelDP);
-        },
-        beamDP2: function () {
-            return this.beamHTiesHTiesDP.concat(this.beamHTiesSteelDP);
-        },
-
-
-        calcCoeffs: function () {
-            return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
-                , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
-        },
-        sigmaDP1: function () {
-            var sum = 0
-            for (i = 0; i < this.DP1.length; i++)
-                sum += this.DP1[i] * 1.0;
-            return sum.toFixed(3)
-        },
-        u1: function () {
-            return [this.DP1[0] / this.sigmaDP1, this.DP1[1] / this.sigmaDP1, this.DP1[2] / this.sigmaDP1
-                , this.DP1[3] / this.sigmaDP1, this.DP1[4] / this.sigmaDP1, this.DP1[5] / this.sigmaDP1
-                , this.DP1[6] / this.sigmaDP1, this.DP1[7] / this.sigmaDP1, this.DP1[8] / this.sigmaDP1, this.DP1[9] / this.sigmaDP1]
-        },
-        w1: function () {
-            return [this.getWeight(this.u1[0]), this.getWeight(this.u1[1]), this.getWeight(this.u1[2])
-                , this.getWeight(this.u1[3]), this.getWeight(this.u1[4]), this.getWeight(this.u1[5])
-                , this.getWeight(this.u1[6]), this.getWeight(this.u1[7]), this.getWeight(this.u1[8]), this.getWeight(this.u1[9])]
-        },
-        MDP1: function () {
-            var sum = 0
-            for (i = 0; i < this.DP1.length; i++)
-                sum += this.DP1[i] * this.w1[i] * 1.0;
-            return sum.toFixed(3)
-        },
-        showState: function (v) {
-            if (v == "beam")
-                return true;
-            else
-                return false;
-        },
-
-        isShow: function () {
-            if (this.bridgeSelected == "beam")
-                return true
-            else
-                return false
-        },
-        cantileverSuspendedIsShow: function () {
-            if (this.bridgeSelected == "cantileverSuspended")
-                return true
-            else
-                return false
-        },
-        trussIsShow: function () {
-            if (this.bridgeSelected == "truss")
-                return true
-            else
-                return false
-        },
-        rigidIsShow: function () {
-            if (this.bridgeSelected == "rigid")
-                return true
-            else
-                return false
-        },
-
-        beamSigmaDP: function () {
-            return [this.getSigmaDP(this.beamDP1), this.getSigmaDP(this.beamDP2)]
-        },
-
-        //第[i]项(i>=0)表示第i+1项损坏的扣分值占所有损坏扣分值的比例
-        beam_u1: function () {
-            return this.get_u(this.beamDP1, this.beamSigmaDP[0])
-        },
-        beam_u2: function () {
-            return this.get_u(this.beamDP2, this.beamSigmaDP[1])
-        },
-
-        //第[i]项(i>=0)表示第i+1项类构件的权重
-        beam_w1: function () {
-            return this.get_w(this.beam_u1)
-        },
-        beam_w2: function () {
-            return this.get_w(this.beam_u2)
-        },
-
-        //构件综合扣分值,详见规范P18,4.5.4-4
-        beam_SDP1: function () {
-            return this.getSDP(this.beamDP1, this.beam_w1)
-        },
-        beam_SDP2: function () {
-            return this.getSDP(this.beamDP2, this.beam_w2)
-        },
-
-        //计算梁桥各个构件的权重
-        beamComponentWeights: function () {
-            //初始化结果
-            var result = [0.0, 0.0]
-            var beamSum = 0.0
-            var beamGirderNume = 0.0
-            var beamHorizontalTiesNume = 0.0
-            //1、获取checkbox的状态
-            if ($.inArray('beam_girder', this.beamComponent) >= 0) {
-                beamSum = beamSum + this.beamGirderWeight
-                beamGirderNume = this.beamGirderWeight
-            }
-
-            if ($.inArray('beam_horizontal_ties', this.beamComponent) >= 0) {
-                beamSum = beamSum + this.beamHorizontalTiesWeight
-                beamHorizontalTiesNume = this.beamHorizontalTiesWeight
-            }
-
-            result = [beamGirderNume / beamSum, beamHorizontalTiesNume / beamSum]
-
-            return result
-        },
-
-        //计算"悬臂+挂梁"各个构件的权重
-        cantileverSuspendedComponentWeights: function () {
-            var result = [0.0, 0.0 ,0.0 ,0.0]
-            var Sum = 0.0
-            var ComponentMatch = ['cantileverSuspendedCantilever', 'cantileverSuspendedSuspended'
-                , 'cantileverSuspendedSupport', 'cantileverSuspendedFallprevent']
-
-            for (i = 0; i < ComponentMatch.length; i++) {
-                if ($.inArray(ComponentMatch[i], this.cantileverSuspendedComponent) >= 0) {
-                    Sum += this.cantileverSuspendedWeight[i]
-                }
-            }         
-            var arr1 = this.cantileverSuspendedWeight
-            var result = arr1.map(function (item) {
-                return item / Sum;
-            });
-
-            return result
-        },
-
-        isShowTest: function () {
-            if ($.inArray('cantileverSuspendedCantileverPCRC', this.cantileverSuspendedComponent01) >= 0)
-                return true;
-            else
-                return false;
-        },
-        //单跨BCIs
-        BCIs: function () {
-            return this.beamComponentWeights[0] * (100 - (this.beamComponentWeights[0] ? this.beam_SDP1 : 0)) + this.beamComponentWeights[1] * (100 - (this.beamComponentWeights[1] ? this.beam_SDP2 : 0))
-        }
-
-    },
-    function() {
-        return {
-            items: [{
-                state: false
-            }, {
-                state: true
-            }]
-        };
-    },
-    methods: {
-        getSigmaDP: function (DPArray) {
-            var sum = 0
-            for (i = 0; i < DPArray.length; i++)
-                sum += DPArray[i] * 1.0;
-            return sum.toFixed(3)
-        },
-
-        get_u: function (DPArray, SigmaDP) {
-            var arr1 = DPArray
-            var arr2 = SigmaDP
-            var result = arr1.map(function (item) {
-                return item / arr2;
-            });
-            return result
-        },
-        get_w: function (uArray) {
-            var result = uArray.map(function (u) {
-                return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);    //日后重构
-            });
-            return result
-        },
-        getSDP: function (DPArray,wArray) {
-            var SDP = 0
-            for (i = 0; i < DPArray.length; i++)
-                SDP += DPArray[i] * wArray[i] * 1.0;
-            if (SDP < Math.max(...DPArray))
-                SDP = Math.max(...DPArray)
-            return SDP.toFixed(3)
-        },
-
-        testOutput: function (num) {
-            return parseFloat(num);
-        },
-        getWeight: function (u) {
-            return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);
-        },
-        GetcalcCoeffs: function (index) {
-            var sum = 0
-            for (i = 0; i < this.coeffs.length; i++)
-                sum += this.mainExists[i] * this.coeffs[i];
-            return (this.mainExists[index] * this.coeffs[index] / sum).toFixed(3);
-        },
-        toggle: function () {
-            this.isShow = !this.isShow;
-        },
-        setShowState: function (v) {
-            if (v == "beam")
-                return true
-            else
-                return false
-        },
-
-    }
-})

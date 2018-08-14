@@ -41,20 +41,13 @@
 
         <div class="row">
             <div class="col-md-1">
-                <template>
-                    <div>template test!</div>
-                </template>
-                {{ beamComponent }}<br />
-                {{beamComponentWeights}}<br />
-                {{beamSigmaDP}}<br />
-                beam_u1:{{beam_u1}}<br />
-                beam_w1:{{beam_w1}}<br />
-                beam_SDP1:{{beam_SDP1}}<br />
-                beam_SDP2:{{beam_SDP2}}<br />
-                BCIs:{{BCIs}}
+                {{beamComponentMatch}}<br />
+                {{beamWeight}}<br />
+                {{beamComponent}}<br />
+                {{beamComponentWeights}}<br/>
 
-                cantileverSuspendedComponentWeights:{{cantileverSuspendedComponentWeights}}<br />
-                cantileverSuspendedComponent01:{{cantileverSuspendedComponent01}}<br />
+
+
             </div>
             <div class="col-md-5">
                 <table class="table table-bordered">
@@ -71,10 +64,10 @@
                         <tr>
                             <td rowspan="2">梁桥</td>
                             <td>
-                                <input id="beam_girder" name="beam_girder" value="beam_girder" type="checkbox" checked="checked" v-model="beamComponent" />主梁
+                                <input id="beam01" value="beam01" type="checkbox" checked="checked" v-model="beamComponent" />主梁
                             </td>
                             <td>
-                                <input type="text" value="6" v-model="beamGirderWeight" />
+                                <input type="text" value="6" v-model="beamWeight[0]" />
                             </td>
                             <td>
                                 PC或RC梁式构件
@@ -85,10 +78,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <input id="beam_horizontal_ties" name="beam_horizontal_ties" value="beam_horizontal_ties" type="checkbox" checked="checked" v-model="beamComponent" />横向联系
+                                <input id="beam02" value="beam02" type="checkbox" checked="checked" v-model="beamComponent" />横向联系
                             </td>
                             <td>
-                                <input type="text" value="4" v-model="beamHorizontalTiesWeight" />
+                                <input type="text" value="4" v-model="beamWeight[1]" />
                             </td>
                             <td>
                                 横向联系
@@ -109,13 +102,13 @@
                                        v-model="cantileverSuspendedComponent" />悬臂梁
                             </td>
                             <td>
-                                <input value="6" v-model="beamGirderWeight" />
+                                <input value="6" />
                             </td>
                             <td>
                                 PC或RC梁式构件
                                 <input id="switch-cantileverSuspendedCantileverPCRC" value="cantileverSuspendedCantileverPCRC"
                                        type="checkbox" v-model="cantileverSuspendedComponent01">
-                           
+
                             </td>
                         </tr>
                         <tr>
@@ -144,7 +137,7 @@
                             </td>
                             <td>
                                 支座
-                                <input id="switch-cantileverSuspendedSuspendedSupportSupport" 
+                                <input id="switch-cantileverSuspendedSuspendedSupportSupport"
                                        type="checkbox">
                             </td>
 
@@ -272,6 +265,7 @@
 
             </div>
             <div class="col-md-9">
+
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -285,15 +279,15 @@
                     </thead>
 
                     <!-- 梁-PC或RC梁式构件 -->
-                    <tbody is="PC-RC-component" :vlu="beamGirderPCRCDP" :id="BeamBridgeId[0]"></tbody>
+                    <tbody is="PC-RC-component" :vlu="beamDP11" :id="beamId[0]"></tbody>
 
                     <!-- 梁-钢结构物 -->
-                    <tbody is="steel-component" :vlu="beamGirderSteelDP" :id="BeamBridgeId[1]"></tbody>
+                    <tbody is="steel-component" :vlu="beamDP12" :id="beamId[1]"></tbody>
 
                     <!-- 梁-横向联系 -->
-                    <tbody is="horizontal-ties-component" :vlu="beamHTiesHTiesDP" :id="BeamBridgeId[2]"></tbody>
+                    <tbody is="horizontal-ties-component" :vlu="beamDP21" :id="beamId[2]"></tbody>
                     <!-- 梁-钢结构物 -->
-                    <tbody is="steel-component" :vlu="beamHTiesSteelDP" :id="BeamBridgeId[3]"></tbody>
+                    <tbody is="steel-component" :vlu="beamDP22" :id="beamId[3]"></tbody>
 
                     <!-- 悬臂+挂梁-悬臂梁-PC或RC梁式构件 -->
                     <tbody is="PC-RC-component" :vlu="cantileverSuspendedCantileverPCRCDP" :id="cantileverSuspendedBridgeId[0]" :v-show="isShowTest"></tbody>
@@ -304,8 +298,6 @@
                     <tbody is="steel-component" :vlu="cantileverSuspendedSuspendedSteelDP" :id="cantileverSuspendedBridgeId[2]"></tbody>
                     <tbody is="support-component" :vlu="cantileverSuspendedSuspendedSupportDP" :id="cantileverSuspendedBridgeId[3]"></tbody>
                     <tbody is="fallprevent-component" :vlu="cantileverSuspendedFallpreventFallpreventDP" :id="cantileverSuspendedBridgeId[4]"></tbody>-->
-
-
                     <!-- 悬臂+挂梁--挂梁支座 -->
                     <!-- 挂梁-防落梁装置 -->
 
