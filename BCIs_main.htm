@@ -37,14 +37,22 @@
                 </select>
             </div>
         </div>
+        <div class="row">
+            {{beamComponentMatch}}<br />
+            {{beamWeight}}<br />
+            {{beamComponent}}<br />
+            {{beamComponentWeights}}<br />
+            beamSigmaDP:{{beamSigmaDP}}<br />
+            beamConnDP:{{beamConnDP}}<br />
+            beam_uArray:{{beam_uArray}}<br />
+            beam_wArray:{{beam_wArray}}<br />
+            getSDPArray:{{getSDPArray}}<br />
+            beam_SDPArray:{{beam_SDPArray}}<br />
+        </div>
 
 
         <div class="row">
             <div class="col-md-1">
-                {{beamComponentMatch}}<br />
-                {{beamWeight}}<br />
-                {{beamComponent}}<br />
-                {{beamComponentWeights}}<br/>
 
 
 
@@ -279,15 +287,15 @@
                     </thead>
 
                     <!-- 梁-PC或RC梁式构件 -->
-                    <tbody is="PC-RC-component" :vlu="beamDP11" :id="beamId[0]"></tbody>
+                    <tbody is="PC-RC-component" :vlu="beamDP[0][0]" :id="beamId[0]"></tbody>
 
                     <!-- 梁-钢结构物 -->
-                    <tbody is="steel-component" :vlu="beamDP12" :id="beamId[1]"></tbody>
+                    <tbody is="steel-component" :vlu="beamDP[0][1]" :id="beamId[1]"></tbody>
 
                     <!-- 梁-横向联系 -->
-                    <tbody is="horizontal-ties-component" :vlu="beamDP21" :id="beamId[2]"></tbody>
+                    <tbody is="horizontal-ties-component" :vlu="beamDP[1][0]" :id="beamId[2]"></tbody>
                     <!-- 梁-钢结构物 -->
-                    <tbody is="steel-component" :vlu="beamDP22" :id="beamId[3]"></tbody>
+                    <tbody is="steel-component" :vlu="beamDP[1][1]" :id="beamId[3]"></tbody>
 
                     <!-- 悬臂+挂梁-悬臂梁-PC或RC梁式构件 -->
                     <tbody is="PC-RC-component" :vlu="cantileverSuspendedCantileverPCRCDP" :id="cantileverSuspendedBridgeId[0]" :v-show="isShowTest"></tbody>

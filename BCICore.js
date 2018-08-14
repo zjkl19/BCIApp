@@ -15,29 +15,31 @@ var vm = new Vue({
 
 
         cantileverSuspendedComponent: [],
-        cantileverSuspendedWeight:[6,2,1,1],    //初始值:悬臂梁6,挂梁2,挂梁支座1,防落梁1
+        cantileverSuspendedWeight: [6, 2, 1, 1],    //初始值:悬臂梁6,挂梁2,挂梁支座1,防落梁1
 
         cantileverSuspendedComponent01: [],
 
-        vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,           
+        vlu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
         cantileverSuspendedBridgeId:
             ['cantileverSuspendedCantileverPCRC', 'cantileverSuspendedSuspendedPCRC'
                 , 'cantileverSuspendedSuspendedSteel', 'cantileverSuspendedSuspendedSupportSupport'
-                ,'cantileverSuspendedFallpreventFallprevent'],
+                , 'cantileverSuspendedFallpreventFallprevent'],
 
         beamComponent: [],//最大数组：["beam01","beam02"]
         beamComponentMatch: ["beam01", "beam02"],
-        beamWeight:[6,4],
+        beamWeight: [6, 4],
         //下标 0-17
         beamId: ['beam11', 'beam12', 'beam21', 'beam22'],
-        beamDP11: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,PC或RC梁式构件
-        beamDP12: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//主梁,钢结构物
-        beamDP21: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,横向联系
-        beamDP22: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],//横向联系,钢结构物
-
-
+        //PC或RC梁式构件,钢结构物
+        //横向联系,钢结构物
+        beamDP: [[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+        [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]],
+        //beamDP11=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        //beamDP12=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        //beamDP21=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        //beamDP22=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
         //计算"悬臂+挂梁"各个构件的权重
         cantileverSuspendedComponentWeights: function () {
@@ -79,47 +81,91 @@ var vm = new Vue({
         cantileverSuspendedSuspendedSupportDP:
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         cantileverSuspendedFallpreventFallpreventDP:
-            [0.0, 0.0, 0.0, 0.0,0.0,0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     },
     computed: {
-        //beamDP1: function () {
-        //    return this.beamGirderPCRCDP.concat(this.beamGirderSteelDP);
-        //},
-        //beamDP2: function () {
-        //    return this.beamHTiesHTiesDP.concat(this.beamHTiesSteelDP);
-        //},
+
         //计算梁桥各个构件的权重
         //ComponentMatch:匹配数组
         beamComponentWeights: function () {
             return this.getComponentWeights(this.beamComponentMatch, this.beamComponent, this.beamWeight)
         },
 
-        calcCoeffs: function () {
-            return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
-                , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
+        beamConnDP: function () {
+            return this.connDPArray(this.beamDP)
         },
-        sigmaDP1: function () {
-            var sum = 0
-            for (i = 0; i < this.DP1.length; i++)
-                sum += this.DP1[i] * 1.0;
-            return sum.toFixed(3)
+
+        beamSigmaDP: function () {
+            return this.getSigmaDPArray(this.beamConnDP)
         },
-        u1: function () {
-            return [this.DP1[0] / this.sigmaDP1, this.DP1[1] / this.sigmaDP1, this.DP1[2] / this.sigmaDP1
-                , this.DP1[3] / this.sigmaDP1, this.DP1[4] / this.sigmaDP1, this.DP1[5] / this.sigmaDP1
-                , this.DP1[6] / this.sigmaDP1, this.DP1[7] / this.sigmaDP1, this.DP1[8] / this.sigmaDP1, this.DP1[9] / this.sigmaDP1]
+        beam_uArray: function () {
+            return this.get_uArray(this.beamConnDP)
         },
-        w1: function () {
-            return [this.getWeight(this.u1[0]), this.getWeight(this.u1[1]), this.getWeight(this.u1[2])
-                , this.getWeight(this.u1[3]), this.getWeight(this.u1[4]), this.getWeight(this.u1[5])
-                , this.getWeight(this.u1[6]), this.getWeight(this.u1[7]), this.getWeight(this.u1[8]), this.getWeight(this.u1[9])]
+
+        beam_wArray: function () {
+            return this.get_wArray(this.beamConnDP)
         },
-        MDP1: function () {
-            var sum = 0
-            for (i = 0; i < this.DP1.length; i++)
-                sum += this.DP1[i] * this.w1[i] * 1.0;
-            return sum.toFixed(3)
+
+        beam_SDPArray: function () {
+            return this.getSDPArray(this.beamConnDP)
         },
+        //第[i]项(i>=0)表示第i+1项损坏的扣分值占所有损坏扣分值的比例
+        //beam_u1: function () {
+        //    return this.get_u(this.beamDP1, this.beamSigmaDP[0])
+        //},
+        //beam_u2: function () {
+        //    return this.get_u(this.beamDP2, this.beamSigmaDP[1])
+        //},
+
+        //第[i]项(i>=0)表示第i+1项类构件的权重
+        //beam_w1: function () {
+        //    return this.get_w(this.beam_u1)
+        //},
+        //beam_w2: function () {
+        //    return this.get_w(this.beam_u2)
+        //},
+
+
+        //构件综合扣分值,详见规范P18,4.5.4-4
+        //beam_SDP1: function () {
+        //    return this.getSDP(this.beamDP1, this.beam_w1)
+        //},
+        //beam_SDP2: function () {
+        //    return this.getSDP(this.beamDP2, this.beam_w2)
+        //},
+
+        //单跨BCIs
+
+        //BCIs: function () {
+        //    return this.beamComponentWeights[0] * (100 - (this.beamComponentWeights[0] ? this.beam_SDP1 : 0)) + this.beamComponentWeights[1] * (100 - (this.beamComponentWeights[1] ? this.beam_SDP2 : 0))
+        //},
+
+        //calcCoeffs: function () {
+        //    return [this.GetcalcCoeffs(0), this.GetcalcCoeffs(1), this.GetcalcCoeffs(2)
+        //        , this.GetcalcCoeffs(4), this.GetcalcCoeffs(4), this.GetcalcCoeffs(5)]
+        //},
+        //sigmaDP1: function () {
+        //    var sum = 0
+        //    for (i = 0; i < this.DP1.length; i++)
+        //        sum += this.DP1[i] * 1.0;
+        //    return sum.toFixed(3)
+        //},
+        //u1: function () {
+        //    return [this.DP1[0] / this.sigmaDP1, this.DP1[1] / this.sigmaDP1, this.DP1[2] / this.sigmaDP1
+        //        , this.DP1[3] / this.sigmaDP1, this.DP1[4] / this.sigmaDP1, this.DP1[5] / this.sigmaDP1
+        //        , this.DP1[6] / this.sigmaDP1, this.DP1[7] / this.sigmaDP1, this.DP1[8] / this.sigmaDP1, this.DP1[9] / this.sigmaDP1]
+        //},
+        //w1: function () {
+        //    return [this.getWeight(this.u1[0]), this.getWeight(this.u1[1]), this.getWeight(this.u1[2])
+        //        , this.getWeight(this.u1[3]), this.getWeight(this.u1[4]), this.getWeight(this.u1[5])
+        //        , this.getWeight(this.u1[6]), this.getWeight(this.u1[7]), this.getWeight(this.u1[8]), this.getWeight(this.u1[9])]
+        //},
+        //MDP1: function () {
+        //    var sum = 0
+        //    for (i = 0; i < this.DP1.length; i++)
+        //        sum += this.DP1[i] * this.w1[i] * 1.0;
+        //    return sum.toFixed(3)
+        //},
         showState: function (v) {
             if (v == "beam")
                 return true;
@@ -152,35 +198,11 @@ var vm = new Vue({
                 return false
         },
 
-        beamSigmaDP: function () {
-            return [this.getSigmaDP(this.beamDP1), this.getSigmaDP(this.beamDP2)]
-        },
 
-        //第[i]项(i>=0)表示第i+1项损坏的扣分值占所有损坏扣分值的比例
-        //beam_u1: function () {
-        //    return this.get_u(this.beamDP1, this.beamSigmaDP[0])
-        //},
-        //beam_u2: function () {
-        //    return this.get_u(this.beamDP2, this.beamSigmaDP[1])
-        //},
 
-        ////第[i]项(i>=0)表示第i+1项类构件的权重
-        //beam_w1: function () {
-        //    return this.get_w(this.beam_u1)
-        //},
-        //beam_w2: function () {
-        //    return this.get_w(this.beam_u2)
-        //},
 
-        ////构件综合扣分值,详见规范P18,4.5.4-4
-        //beam_SDP1: function () {
-        //    return this.getSDP(this.beamDP1, this.beam_w1)
-        //},
-        //beam_SDP2: function () {
-        //    return this.getSDP(this.beamDP2, this.beam_w2)
-        //},
 
-        
+
 
         isShowTest: function () {
             if ($.inArray('cantileverSuspendedCantileverPCRC', this.cantileverSuspendedComponent01) >= 0)
@@ -188,11 +210,7 @@ var vm = new Vue({
             else
                 return false;
         },
-        //单跨BCIs
 
-        BCIs: function () {
-            return this.beamComponentWeights[0] * (100 - (this.beamComponentWeights[0] ? this.beam_SDP1 : 0)) + this.beamComponentWeights[1] * (100 - (this.beamComponentWeights[1] ? this.beam_SDP2 : 0))
-        }
 
     },
     function() {
@@ -205,11 +223,142 @@ var vm = new Vue({
         };
     },
     methods: {
+        /**
+         * @method connDPArray 连接扣分数组
+         * @param DPArray 扣分数组
+         * @returns result 连接后的数组
+         * @author ldn 2018/08/14
+         * @example 
+         * 场景：
+         * PC或RC梁式构件,钢结构物
+         * 横向联系,钢结构物
+         * beamDP:[[[0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+         *   [[0.0, 15.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]],
+         * 调用：connDPArray(beamDP)
+         * 结果:[[0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+         *   [0.0, 15.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+         */
+        connDPArray: function (DPArray) {
+            var result = []
+            var i
+            for (i = 0; i < DPArray.length; i++) {    //初始化
+                result.push(0)
+            }
+            var DPconn
+            for (i = 0; i < DPArray.length; i++) {
+                DPconn = []
+                if (DPArray[i].length > 1) {
+                    for (j = 0; j < DPArray[i].length - 1; j++) {
+                        DPconn = DPconn.concat(DPArray[i][j].concat(DPArray[i][j + 1]))
+                    }
+                }
+                else {
+                    DPconn = DPArray[i][0]
+                }
+
+                result[i] = DPconn
+            }
+            return result
+        },
+
         getSigmaDP: function (DPArray) {
             var sum = 0
+            var i
             for (i = 0; i < DPArray.length; i++)
                 sum += DPArray[i] * 1.0;
             return sum.toFixed(3)
+        },
+        /**
+        * @method getSigmaDPArray 计算各构件类型扣分总和
+        * @param DPArrayConn 扣分数组
+        * @returns result 扣分结果
+        * @author ldn 2018/08/14
+        * @example 
+        * 场景：
+        * PC或RC梁式构件,钢结构物
+        * 横向联系,钢结构物
+        * beamDP:[[0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+        *   [0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+        * 调用：getSigmaDPArray(beamDP)
+        * 结果:[20,15]
+        */
+        getSigmaDPArray: function (DPArrayConn) {
+            var result = []
+            var i
+            var DPconn
+            for (i = 0; i < DPArrayConn.length; i++) {
+                result[i] = this.getSigmaDP(DPArrayConn[i])
+            }
+            return result
+        },
+        //getSigmaDPArray: function (DPArray) {
+        //    var result = []
+        //    var i
+        //    for (i = 0; i < DPArray.length; i++) {    //初始化权重
+        //        result.push(0)
+        //    }
+        //    var DPconn
+        //    for (i = 0; i < DPArray.length; i++) {
+        //        DPconn = []
+        //        if (DPArray[i].length > 1) {
+        //            for (j = 0; j < DPArray[i].length - 1; j++) {
+        //                DPconn = DPconn.concat(DPArray[i][j].concat(DPArray[i][j + 1]))
+        //            }
+        //        }
+        //        else {
+        //            DPconn = DPArray[i][0]
+        //        }
+
+        //        result[i] = this.getSigmaDP(DPconn)
+        //    }
+        //    return result
+        //},
+        /**
+         * @method get_uArray 计算各构件类型扣分综合
+         * @param DPArrayConn 连接后的扣分数组
+         * @returns result 占比结果
+         * @author ldn 2018/08/14
+         * @example 
+         * 场景：
+         * PC或RC梁式构件,钢结构物
+         * 横向联系,钢结构物
+         * beamDPConn:[[0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+         *   [0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+         * 调用：get_uArray(beamDPConn)
+         * 结果:[[0.0, 0.50, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.50, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+         *   [0.0, 1.00, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+         */
+        get_uArray: function (DPArrayConn) {
+            var i
+            var j
+            var SigmaDPArray = this.getSigmaDPArray(DPArrayConn)
+            var result = DPArrayConn.slice()
+            for (i = 0; i < DPArrayConn.length; i++) {
+                for (j = 0; j < DPArrayConn[i].length; j++) {
+                    result[i][j] = DPArrayConn[i][j] * 1.0 / SigmaDPArray[i]
+                }
+            }
+            return result
+        },
+
+        /**
+         * @method get_wArray 求w数组
+         * @param DPArrayConn 连接后的扣分数组
+         * @returns result 详见规范中w
+         * @author ldn 2018/08/14
+         * @example 
+         * 略,可参考get_uArray
+         */
+        get_wArray: function (DPArrayConn) {
+
+            var r = this.get_uArray(DPArrayConn).slice()
+            var i
+            for (i = 0; i < DPArrayConn.length; i++) {
+                r[i] = r[i].map(function (u) {
+                    return parseFloat(3.0 * u ** 3 - 5.5 * u ** 2 + 3.5 * u).toFixed(3);    //日后重构
+                });
+            }
+            return r
         },
 
         get_u: function (DPArray, SigmaDP) {
@@ -226,7 +375,23 @@ var vm = new Vue({
             });
             return result
         },
-        getSDP: function (DPArray,wArray) {
+        /**
+         * @method getSDPArray 计算SDP数组
+         * @param DPArrayConn 连接后的扣分数组
+         * @returns result 占比结果
+         * @author ldn 2018/08/14
+         * @example 
+         * Todo：补充规范上的例子
+         */
+        getSDPArray: function (DPArrayConn) {
+            var i
+            var r=[]
+            for (i = 0; i < DPArrayConn.length; i++) {
+                r.push(this.getSDP(DPArrayConn[i], this.get_wArray(DPArrayConn)))
+            }
+            return r
+        },
+        getSDP: function (DPArray, wArray) {
             var SDP = 0
             for (i = 0; i < DPArray.length; i++)
                 SDP += DPArray[i] * wArray[i] * 1.0;
@@ -251,22 +416,28 @@ var vm = new Vue({
             this.isShow = !this.isShow;
         },
         setShowState: function (v) {
-``
+
             if (v == "beam")
                 return true
             else
                 return false
         },
 
-        //计算各个构件的权重
-        //componentMatch:匹配组件数组
-        //componentSelected:已选组件
-        //componentWeight:各组件权重
         /**
-         * 
-         * @param componentMatch 匹配组件数组
+         * @method getComponentWeights 计算各个构件的权重
+         * @param componentMatch 匹配组件数组（含所有要匹配的Id）
          * @param componentSelected 已选组件
-         * */
+         * @param componentWeight 各组件的权重（一般情况下都是按规范取的初始权重）
+         * @returns {Array} 重新计算的权重
+         * @author ldn 2018/08/14
+         * @example 
+         * 场景：梁桥，只有主梁，无横向联系
+         * componentMatch: ["beam01", "beam02"]
+         * componentSelected: ["beam01"]
+         * componentWeight: [6, 4],
+         * 调用：getComponentWeights(componentMatch,componentSelected,componentWeight)
+         * 结果:[1,0]
+         */
         getComponentWeights: function (componentMatch, componentSelected, componentWeight) {
             //初始化结果
             var result = []  //最终求得的权重
@@ -282,13 +453,13 @@ var vm = new Vue({
                     Sum += componentWeight[i]
                 }
                 else {
-                    newWeight[i]=0.0
+                    newWeight[i] = 0.0
                 }
             }
-            
+
             //重新计算权重
             var result = newWeight.map(function (item) {
-                return (item / Sum)*1.000
+                return (item / Sum) * 1.000
             });
 
             return result
@@ -428,28 +599,28 @@ Vue.component('PC-RC-component', {
                             <td>梁体由于受力而产生的裂缝</td>
                             <td></td>
                             <td>“无”指没有出现结构裂缝;“明显”指结构裂缝宽度未超过允许限值;“严重”指结构裂缝宽度超过允许限值</td>
-                            <td><input type="text" v-model="vlu[4]" /></td>
+                            <td><input  v-model="vlu[4]" /></td>
                         </tr>
                         <tr>
                             <td>裂缝处渗水</td>
                             <td>梁体裂缝处有渗水痕迹</td>
                             <td></td>
                             <td>“无”指裂缝处没有渗水痕迹;“轻微”指裂缝处轻微渗水，渗水痕迹面积不大且并不明显;“严重”指裂缝处严重渗水，渗水痕迹面积较大且非常明显</td>
-                            <td><input type="text" v-model="vlu[5]" /></td>
+                            <td><input  v-model="vlu[5]" /></td>
                         </tr>
                         <tr>
                             <td>贯通横缝</td>
                             <td>与桥面道路中线大致垂直并且在横向可能贯通整个桥面的裂缝，有时伴有少量支缝</td>
                             <td></td>
                             <td>裂缝在垂直于桥面道路中线方向的贯通程度</td>
-                            <td><input type="text" v-model="vlu[6]"/></td>
+                            <td><input  v-model="vlu[6]"/></td>
                         </tr>
                         <tr>
                             <td>梁体位移</td>
                             <td>梁体出现水平偏移和转动</td>
                             <td></td>
                             <td>“无”指梁体没有偏移或转动;“明显”指梁体出现偏移或转动;“严重”指梁体出现严重偏移或转动且存在落梁或倾覆的风险</td>
-                            <td><input type="text" v-model="vlu[7]" /></td>
+                            <td><input  v-model="vlu[7]" /></td>
                         </tr>
                     </tbody>`,
 });
@@ -466,7 +637,7 @@ Vue.component('steel-component', {
                             <td>钢结构物表面油漆变色或漆皮隆起</td>
                             <td></td>
                             <td>变色起皮的总面积占整个钢结构物表面积的百分比</td>
-                            <td><input type="text" v-model="vlu[0]" /></td>
+                            <td><input  v-model="vlu[0]" /></td>
                         </tr>
                         <tr>
 
@@ -474,14 +645,14 @@ Vue.component('steel-component', {
                             <td>钢结构物表面油漆剥落</td>
                             <td></td>
                             <td>剥落的总面积占整个钢结构物表面积的百分比</td>
-                            <td><input type="text" v-model="vlu[1]" /></td>
+                            <td><input  v-model="vlu[1]" /></td>
                         </tr>
                         <tr>
                             <td>一般锈蚀</td>
                             <td>钢结构物表面出现锈斑</td>
                             <td></td>
                             <td>一般锈蚀的总面积占整个钢结构物表面积的百分比</td>
-                            <td><input type="text" v-model="vlu[2]" /></td>
+                            <td><input  v-model="vlu[2]" /></td>
                         </tr>
                         <tr>
                             <td>严重锈蚀</td>
